@@ -12,6 +12,14 @@ var Server = function() {
   console.log("Server Intialised");
 }
 
+Server.prototype.startUpdateLoop = function(){
+    var t = this;
+
+    setInterval(function(){
+      t.update(t);
+    }, 1000);
+}
+
 Server.prototype.connectClient = function(client) {
   // Give the Client enough data to identify itself.
   client.server = this;
@@ -28,15 +36,16 @@ Server.prototype.connectClient = function(client) {
   console.log("Now there are " + this.clients.length + " clients");
 }
 
-Server.prototype.update = function() {
-  this.processInputs();
-  this.sendWorldState();
+Server.prototype.update = function(serverInstance) {
+  console.log("Updating");
+  serverInstance.processInputs();
+  serverInstance.sendWorldState();
 }
 
 Server.prototype.processInputs = function() {
   // Process all pending messages from clients.
   while (true) {
-    var message = this.network.receive();
+    var message = undefined; //this.network.receive();
     if (!message) {
       break;
     }
@@ -77,7 +86,8 @@ Server.prototype.sendWorldState = function() {
   // Broadcast the state to all the clients.
   for (var i = 0; i < num_clients; i++) {
     var client = this.clients[i];
-    client.network.send(client_server_lag, world_state);
+    console.log(world_state);
+    //client.network.send(client_server_lag, world_state);
   }
 }
 

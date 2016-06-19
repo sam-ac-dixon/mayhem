@@ -2,6 +2,7 @@ var ws = require("nodejs-websocket");
 var Server = require("./server.js");
 
 var game_server = new Server();
+game_server.startUpdateLoop();
 
 var socket = ws.createServer(function(conn) {
     game_server.connectClient(conn);
