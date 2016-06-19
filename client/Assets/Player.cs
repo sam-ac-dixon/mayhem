@@ -36,16 +36,13 @@ public class Player : MonoBehaviour {
     {
         WebSocket w = new WebSocket(new Uri("ws://192.168.1.61:8001"));
         yield return StartCoroutine(w.Connect());
-        w.SendString("Hi there");
-        w.Send(Encoding.ASCII.GetBytes("Alex"));
-        int i = 0;
+
         while (true)
         {
             string reply = w.RecvString();
             if (reply != null)
             {
                 Debug.Log("Received: " + reply);
-                w.SendString("Hi there" + i++);
             }
             if (w.error != null)
             {
