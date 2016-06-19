@@ -1,23 +1,84 @@
+var Entity = require('./entity.js');
 
-var io = require('socket.io');
-var port = 1234;
 
-// Create a Socket.IO instance, passing it our server
-var socket = io.listen(port);
+var Server = function() {
+  // Connected clients and their entities.
+  this.clients = [];
+  this.entities = [];
 
-// Add a connect listener
-socket.on('connection', function(client){ 
-    console.log('Connection to client established');
+  // Last processed input for each client.
+  this.last_processed_input = [];
 
-    // Success!  Now listen to messages to be received
-    client.on('message',function(event){ 
-        console.log('Received message from client!',event);
-    });
+  console.log("Server Intialised");
+}
 
-    // client.on('disconnect',function(){
-    //     clearInterval(interval);
-    //     console.log('Server has disconnected');
-    // });
-});
+Server.prototype.connectClient = function(client) {
+  // Give the Client enough data to identify itself.
+  client.server = this;
+  client.entity_id = this.clients.length;
+  this.clients.push(client);
 
-console.log('Server running at http://127.0.0.1:' + port + '/');
+  // Create a new Entity for this Client.
+  var entity = new Entity();
+  this.entities.push(entity);
+  entity.entity_id = client.entity_id;
+
+  // Set the initial state of the Entity (e.g. spawn point)
+  entity.x = 5;
+  console.log("Now there are " + this.clients.length + " clients");
+}
+
+Server.prototype.update = function() {
+  this.processInputs();
+  this.sendWorldState();
+}
+
+Server.prototype.processInputs = function() {
+  // Process all pending messages from clients.
+  while (true) {
+    var message = this.network.receive();
+    if (!message) {
+      break;
+    }
+
+    // Update the state of the entity, based on its input.
+    // We just ignore inputs that don't look valid; this is what prevents
+    // clients from cheating.
+    if (this.validateInput(message)) {
+      var id = message.entity_id;
+      this.entities[id].applyInput(message);
+      this.last_processed_input[id] = message.input_sequence_number;
+    }
+  }
+}
+
+// Check whether this input seems to be valid (e.g. "make sense" according
+// to the physical rules of the World)
+Server.prototype.validateInput = function(input) {
+  if (Math.abs(input.press_time) > 1/40) {
+    return false;
+  }
+  return true;
+}
+
+// Send the world state to all the connected clients.
+Server.prototype.sendWorldState = function() {
+  // Gather the state of the world. In a real app, state could be filtered to
+  // avoid leaking data (e.g. position of invisible enemies).
+  var world_state = [];
+  var num_clients = this.clients.length;
+  for (var i = 0; i < num_clients; i++) {
+    var entity = this.entities[i];
+    world_state.push({entity_id: entity.entity_id,
+                      position: entity.x,
+                      last_processed_input: this.last_processed_input[i]});
+  }
+
+  // Broadcast the state to all the clients.
+  for (var i = 0; i < num_clients; i++) {
+    var client = this.clients[i];
+    client.network.send(client_server_lag, world_state);
+  }
+}
+
+module.exports = Server;
