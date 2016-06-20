@@ -7,6 +7,8 @@ public class Player : MonoBehaviour {
     private float m_MovementSpeed = 3f;
     private float m_RotateSpeed = 5f;
 
+    private string m_ID = null;
+
     public float MovementSpeed
     {
         get
@@ -39,10 +41,17 @@ public class Player : MonoBehaviour {
 
         while (true)
         {
-            string reply = w.RecvString();
-            if (reply != null)
+            string command = w.RecvString();
+            if (command != null)
             {
-                Debug.Log("Received: " + reply);
+                Debug.Log("Received: " + command);
+                string opcode = command.Split(':')[0];
+
+                if (m_ID == null && opcode.Equals("id"))
+                {
+                    m_ID = command.Split(':')[1];
+                    Debug.Log("ID = " + m_ID);
+                }
             }
             if (w.error != null)
             {
@@ -51,10 +60,9 @@ public class Player : MonoBehaviour {
             }
             yield return 0;
         }
+
         w.Close();
     }
-
-
 
     // Update is called once per frame
     void FixedUpdate() {

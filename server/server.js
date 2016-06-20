@@ -1,10 +1,11 @@
-var Entity = require('./entity.js');
-
+var Player = require('./player.js');
+var Client = require('./client.js');
+var UUID = require('node-uuid')
 
 var Server = function() {
   // Connected clients and their entities.
   this.clients = [];
-  this.entities = [];
+  this.commands = [];
 
   // Last processed input for each client.
   this.last_processed_input = [];
@@ -20,26 +21,38 @@ Server.prototype.startUpdateLoop = function(){
     }, 1000);
 }
 
-Server.prototype.connectClient = function(client) {
-  // Give the Client enough data to identify itself.
-  client.server = this;
-  client.entity_id = this.clients.length;
+Server.prototype.pushCommand = function(client, command){
+  //{ 
+  //  move: 0 | 1,
+  //  rotate: amount,
+  //  currentWeapon: ID,
+  //  fire: 0 | 1
+  //}
+
+  this._commands.push({"client": client, "command": command})
+}
+
+Server.prototype.connectClient = function() {
+  var client = new Client();
+  var newPlayer = new Player();
+
+  client.id = UUID();
+
+  newPlayer.x = 5;
+
+  client.connectedClient = newPlayer;
+
   this.clients.push(client);
 
-  // Create a new Entity for this Client.
-  var entity = new Entity();
-  this.entities.push(entity);
-  entity.entity_id = client.entity_id;
+  console.log("Client " + client.id + " is now connected");
 
-  // Set the initial state of the Entity (e.g. spawn point)
-  entity.x = 5;
-  console.log("Now there are " + this.clients.length + " clients");
+  return client.id
 }
 
 Server.prototype.update = function(serverInstance) {
   console.log("Updating");
-  serverInstance.processInputs();
-  serverInstance.sendWorldState();
+  //serverInstance.processInputs();
+  //serverInstance.sendWorldState();
 }
 
 Server.prototype.processInputs = function() {

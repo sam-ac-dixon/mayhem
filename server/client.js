@@ -1,21 +1,14 @@
-require('./entity.js')
-require('./socketNetwork.js')
+require('./player.js')
 // =============================================================================
 //  The Client.
 // =============================================================================
 var Client = function() {
-  this.entity = null;
+  this.connectedPlayer = null;
+  this.id = 0;
 
   // Input state.
   this.key_left = false;
   this.key_right = false;
-
-  // Simulated network connection.
-  this.network = new Network();
-  this.server = null;
-
-  // Unique ID of our entity. Assigned by Server on connection.
-  this.entity_id = null;
 
   // Data needed for reconciliation.
   this.input_sequence_number = 0;
@@ -28,7 +21,7 @@ Client.prototype.update = function() {
   // Listen to the server.
   this.processServerMessages();
 
-  if (this.entity == null) {
+  if (this.connectedPlayer == null) {
     return;  // Not connected yet.
   }
 
@@ -36,7 +29,7 @@ Client.prototype.update = function() {
   this.processInputs();
 
   // Render the World.
-  renderWorld(player_canvas, [this.entity]);
+  renderWorld(player_canvas, [this.connectedPlayer]);
 
   // Show some info.
   var info = "Non-acknowledged inputs: " + this.pending_inputs.length;
@@ -52,20 +45,13 @@ Client.prototype.processServerMessages = function() {
       break;
     }
 
-    // World state is a list of entity states.
+    // World state is a list of connectedPlayers states.
     for (var i = 0; i < message.length; i++) {
       var state = message[i];
 
-      if (state.entity_id == this.entity_id) {
-        // Got the position of this client's entity.
-
-        if (!this.entity) {
-          // If this is the first server update, create a local entity.
-          this.entity = new Entity();
-        }
-
+      if (state.playerID == this.id) {
         // Set the position sent by the server.
-        this.entity.x = state.position;
+        this.connectedPlayer.x = state.position;
 
         if (server_reconciliation) {
           // Server Reconciliation. Re-apply all the inputs not yet processed by
@@ -79,7 +65,7 @@ Client.prototype.processServerMessages = function() {
               this.pending_inputs.splice(j, 1);
             } else {
               // Not processed by the server yet. Re-apply it.
-              this.entity.applyInput(input);
+              this.connectedPlayer.applyInput(input);
               j++;
             }
           }
@@ -117,14 +103,16 @@ Client.prototype.processInputs = function() {
 
   // Send the input to the server.
   input.input_sequence_number = this.input_sequence_number++;
-  input.entity_id = this.entity_id;
+  input.playerId = this.id;
   this.server.network.send(client_server_lag, input);
 
   // Do client-side prediction.
   if (client_side_prediction) {
-    this.entity.applyInput(input);
+    this.connectedPlayer.applyInput(input);
   }
 
   // Save this input for later reconciliation.
   this.pending_inputs.push(input);
 }
+
+module.exports = Client;
