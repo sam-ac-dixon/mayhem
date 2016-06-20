@@ -7,7 +7,7 @@ game_server.startUpdateLoop();
 var socket = ws.createServer(function(conn) {
     var newClientID = game_server.connectClient(conn);
 
-    conn.sendText("id:" + newClientID);
+    conn.sendText('{"id":"' + newClientID + '"}');
 
     conn.on("binary", function(inStream) {
         // Empty buffer for collecting binary data

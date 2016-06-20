@@ -7,7 +7,7 @@ public class Player : MonoBehaviour {
     private float m_MovementSpeed = 3f;
     private float m_RotateSpeed = 5f;
 
-    private string m_ID = null;
+    private string m_ID;
 
     public float MovementSpeed
     {
@@ -42,14 +42,16 @@ public class Player : MonoBehaviour {
         while (true)
         {
             string command = w.RecvString();
+
             if (command != null)
             {
                 Debug.Log("Received: " + command);
-                string opcode = command.Split(':')[0];
 
-                if (m_ID == null && opcode.Equals("id"))
+                Command recvCommand = JsonUtility.FromJson<Command>(command);
+
+                if (m_ID == null)
                 {
-                    m_ID = command.Split(':')[1];
+                    m_ID = recvCommand.id;
                     Debug.Log("ID = " + m_ID);
                 }
             }
