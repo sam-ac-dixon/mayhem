@@ -41,18 +41,16 @@ public class Player : MonoBehaviour {
 
         while (true)
         {
-            string command = w.RecvString();
+            string command = w.Recv();
 
             if (command != null)
             {
-                Debug.Log("Received: " + command);
-
                 Command recvCommand = JsonUtility.FromJson<Command>(command);
 
                 if (m_ID == null)
                 {
                     m_ID = recvCommand.id;
-                    Debug.Log("ID = " + m_ID);
+                    w.Send("Recieved and set my ID to: " + m_ID);
                 }
             }
             if (w.error != null)

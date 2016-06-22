@@ -14,7 +14,8 @@ SocketCreate: function(url)
 	socket.socket.binaryType = 'arraybuffer';
 
 	socket.socket.onmessage = function (e) {
-		// Todo: handle other data types?
+		console.log(typeof(e.data))
+	
 		if (e.data instanceof Blob)
 		{
 			var reader = new FileReader();
@@ -28,6 +29,10 @@ SocketCreate: function(url)
 		{
 			var array = new Uint8Array(e.data);
 			socket.messages.push(array);
+		}
+		else
+		{
+			socket.messages.push(e.data);
 		}
 	};
 
@@ -84,29 +89,33 @@ SocketError: function (socketInstance, ptr, bufsize)
 	return 1;
 },
 
-SocketSend: function (socketInstance, ptr, length)
+SocketSend: function (socketInstance, msg)
 {
 	var socket = webSocketInstances[socketInstance];
-	socket.socket.send (HEAPU8.buffer.slice(ptr, ptr+length));
+	var str = Pointer_stringify(msg);
+	console.log("ME SENDING: " + str);
+	socket.socket.send (str);
 },
 
 SocketRecvLength: function(socketInstance)
 {
 	var socket = webSocketInstances[socketInstance];
 	if (socket.messages.length == 0)
+	{
 		return 0;
+	}
 	return socket.messages[0].length;
 },
 
-SocketRecv: function (socketInstance, ptr, length)
+SocketRecv: function (socketInstance, ptr)
 {
 	var socket = webSocketInstances[socketInstance];
 	if (socket.messages.length == 0)
-		return 0;
-	if (socket.messages[0].length > length)
-		return 0;
-	HEAPU8.set(socket.messages[0], ptr);
+		return 0;	
+	var str = socket.messages[0]
 	socket.messages = socket.messages.slice(1);
+    writeStringToMemory(str, ptr, false);
+	return str.length
 },
 
 SocketClose: function (socketInstance)
