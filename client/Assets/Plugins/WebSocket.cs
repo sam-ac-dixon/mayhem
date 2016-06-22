@@ -21,19 +21,6 @@ public class WebSocket
 			throw new ArgumentException("Unsupported protocol: " + protocol);
 	}
 
-	public void SendString(string str)
-	{
-		Send(Encoding.UTF8.GetBytes (str));
-	}
-
-	public string RecvString()
-	{
-		byte[] retval = Recv();
-		if (retval == null)
-			return null;
-		return Encoding.UTF8.GetString (retval);
-	}
-
 #if UNITY_WEBGL && !UNITY_EDITOR
 	[DllImport("__Internal")]
 	private static extern int SocketCreate (string url);
@@ -42,10 +29,10 @@ public class WebSocket
 	private static extern int SocketState (int socketInstance);
 
 	[DllImport("__Internal")]
-	private static extern void SocketSend (int socketInstance, byte[] ptr, int length);
+	private static extern void SocketSend (int socketInstance, string msg);
 
 	[DllImport("__Internal")]
-	private static extern void SocketRecv (int socketInstance, byte[] ptr, int length);
+	private static extern int SocketRecv (int socketInstance, byte[] ptr);
 
 	[DllImport("__Internal")]
 	private static extern int SocketRecvLength (int socketInstance);
@@ -58,19 +45,21 @@ public class WebSocket
 
 	int m_NativeRef = 0;
 
-	public void Send(byte[] buffer)
+	public void Send(string msg)
 	{
-		SocketSend (m_NativeRef, buffer, buffer.Length);
+		SocketSend (m_NativeRef, msg);
 	}
 
-	public byte[] Recv()
+	public string Recv()
 	{
-		int length = SocketRecvLength (m_NativeRef);
-		if (length == 0)
+        const int bufsize = 1024;
+		byte[] buffer = new byte[bufsize];
+		int result = SocketRecv (m_NativeRef, buffer);
+
+		if (result == 0)
 			return null;
-		byte[] buffer = new byte[length];
-		SocketRecv (m_NativeRef, buffer, length);
-		return buffer;
+        Application.ExternalCall("console.log", Encoding.UTF8.GetString (buffer));
+		return Encoding.UTF8.GetString (buffer);			
 	}
 
 	public IEnumerator Connect()
@@ -100,15 +89,15 @@ public class WebSocket
 		}
 	}
 #else
-	WebSocketSharp.WebSocket m_Socket;
-	Queue<byte[]> m_Messages = new Queue<byte[]>();
+    WebSocketSharp.WebSocket m_Socket;
+	Queue<string> m_Messages = new Queue<string>();
 	bool m_IsConnected = false;
 	string m_Error = null;
 
 	public IEnumerator Connect()
 	{
 		m_Socket = new WebSocketSharp.WebSocket(mUrl.ToString());
-		m_Socket.OnMessage += (sender, e) => m_Messages.Enqueue (e.RawData);
+		m_Socket.OnMessage += (sender, e) => m_Messages.Enqueue (e.Data);
 		m_Socket.OnOpen += (sender, e) => m_IsConnected = true;
 		m_Socket.OnError += (sender, e) => m_Error = e.Message;
 		m_Socket.ConnectAsync();
@@ -116,12 +105,12 @@ public class WebSocket
 			yield return 0;
 	}
 
-	public void Send(byte[] buffer)
+	public void Send(string msg)
 	{
-		m_Socket.Send(buffer);
+		m_Socket.Send(msg);
 	}
 
-	public byte[] Recv()
+	public string Recv()
 	{
 		if (m_Messages.Count == 0)
 			return null;
