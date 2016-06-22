@@ -45,17 +45,12 @@ public class Player : MonoBehaviour {
 
             if (command != null)
             {
-                Application.ExternalCall("console.log", command);
-                Debug.Log("Received: " + command);
-
                 Command recvCommand = JsonUtility.FromJson<Command>(command);
 
                 if (m_ID == null)
                 {
                     m_ID = recvCommand.id;
-                    Debug.Log("ID = " + m_ID);
-                    Application.ExternalCall("console.log", "ID SET to " + m_ID);
-                    w.Send("ID SET to " + m_ID);
+                    w.Send("Recieved and set my ID to: " + m_ID);
                 }
             }
             if (w.error != null)
