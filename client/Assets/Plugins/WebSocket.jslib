@@ -101,7 +101,9 @@ SocketRecvLength: function(socketInstance)
 {
 	var socket = webSocketInstances[socketInstance];
 	if (socket.messages.length == 0)
+	{
 		return 0;
+	}
 	return socket.messages[0].length;
 },
 

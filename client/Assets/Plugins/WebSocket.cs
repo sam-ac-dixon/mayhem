@@ -52,13 +52,12 @@ public class WebSocket
 
 	public string Recv()
 	{
-        const int bufsize = 1024;
+        int bufsize = SocketRecvLength(m_NativeRef);
 		byte[] buffer = new byte[bufsize];
 		int result = SocketRecv (m_NativeRef, buffer);
 
 		if (result == 0)
 			return null;
-        Application.ExternalCall("console.log", Encoding.UTF8.GetString (buffer));
 		return Encoding.UTF8.GetString (buffer);			
 	}
 

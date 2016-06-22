@@ -54,8 +54,8 @@ public class Player : MonoBehaviour {
                 {
                     m_ID = recvCommand.id;
                     Debug.Log("ID = " + m_ID);
-                    Application.ExternalCall("console.log", "ID SET");
-                    w.Send("My ID");
+                    Application.ExternalCall("console.log", "ID SET to " + m_ID);
+                    w.Send("ID SET to " + m_ID);
                 }
             }
             if (w.error != null)
