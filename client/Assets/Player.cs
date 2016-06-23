@@ -3,7 +3,8 @@ using System.Collections;
 using System;
 using System.Text;
 
-public class Player : MonoBehaviour {
+public class Player : MonoBehaviour
+{
     private float m_MovementSpeed = 3f;
     private float m_RotateSpeed = 5f;
 
@@ -41,18 +42,26 @@ public class Player : MonoBehaviour {
 
         while (true)
         {
-            string command = w.RecvString();
+            string command = w.Recv();
 
             if (command != null)
             {
-                Debug.Log("Received: " + command);
-
                 Command recvCommand = JsonUtility.FromJson<Command>(command);
+
+                Debug.Log(command);
 
                 if (m_ID == null)
                 {
                     m_ID = recvCommand.id;
-                    Debug.Log("ID = " + m_ID);
+                    w.Send("Recieved and set my ID to: " + m_ID);
+                }
+
+                foreach (PlayerCommandData player in recvCommand.players)
+                {
+                    if (player.id == m_ID)
+                    {
+                        transform.position = new Vector3(player.x, player.y, 0);
+                    }
                 }
             }
             if (w.error != null)
@@ -67,13 +76,14 @@ public class Player : MonoBehaviour {
     }
 
     // Update is called once per frame
-    void FixedUpdate() {
-	    if(Input.GetKey(KeyCode.W))
+    void FixedUpdate()
+    {
+        if (Input.GetKey(KeyCode.W))
         {
             transform.position += transform.right * m_MovementSpeed * Time.deltaTime;
         }
 
-        if(Input.GetKey(KeyCode.A))
+        if (Input.GetKey(KeyCode.A))
         {
             transform.Rotate(Vector3.forward * m_RotateSpeed);
         }
