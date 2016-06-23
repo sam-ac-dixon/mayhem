@@ -42,7 +42,7 @@ public class Player : MonoBehaviour
 
         while (true)
         {
-            string command = w.Recv();
+            string command = w.RecvString();
 
             if (command != null)
             {
@@ -53,7 +53,7 @@ public class Player : MonoBehaviour
                 if (m_ID == null)
                 {
                     m_ID = recvCommand.id;
-                    w.Send("Recieved and set my ID to: " + m_ID);
+                    w.SendString("Recieved and set my ID to: " + m_ID);
                 }
 
                 foreach (PlayerCommandData player in recvCommand.players)
