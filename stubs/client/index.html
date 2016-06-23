@@ -2,16 +2,11 @@
 <html>
 <body>
 
-<script src="socket.io/socket.io.js"></script>
-<!-- <script src="bson.js"></script> -->
-
 <script>
 
 	var ws = new WebSocket("ws://127.0.0.1:1234");
 	ws.onopen = function(evt) { setInterval(function() {sendClientUpdate()}, 1000); };   
-	// ws.binaryType = "arraybuffer"; 
-    // var BSON = bson().BSON;
-
+    
     function sendClientUpdate() {
     	var randomizedPayload = { 
     		move : true, 

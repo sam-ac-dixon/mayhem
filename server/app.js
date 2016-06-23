@@ -1,28 +1,18 @@
 var ws = require("nodejs-websocket");
-var Server = require("./server.js");
+var ServerManager = require("./lib/core/server.manager.js");
+var Client = require("./lib/core/client.js");
 
-var game_server = new Server();
-game_server.startUpdateLoop();
+var serverManager = new ServerManager();
 
-var socket = ws.createServer(function(conn) {
-    var newClientID = game_server.connectClient(conn);
+var wss = ws.createServer(function(conn) {
 
-    conn.sendText('{"id":"' + newClientID + '"}');
+    var client = new Client(conn);
+    conn.sendText(JSON.stringify( {id:client.id} ));
 
-    conn.on("binary", function(inStream) {
-        // Empty buffer for collecting binary data
-        var data = new Buffer(0)
-            // Read chunks of binary data and add to the buffer
-        inStream.on("readable", function() {
-            var newData = inStream.read()
-            if (newData)
-                data = Buffer.concat([data, newData], data.length + newData.length)
-        })
-        inStream.on("end", function() {
-            game_server.pushCommand(conn, data.toString('utf8'))
-        })
-    })
+    serverManager.joinGame(client);    
+
     conn.on("close", function(code, reason) {
         console.log("Connection closed")
-    })
-}).listen(8001)
+    });
+    
+}).listen(1234)
