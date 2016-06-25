@@ -1,8 +1,14 @@
 var Player = function() {
-  this.x = 0;
-  this.y = 0;
+  this.x = 10;
+  this.y = 10;
   this.angle = 0;
   this.speed = 2; // units/s
+  this.score = 0;
+
+  this.health = 100;
+
+  this.width = 20;
+  this.height = 20;
 }
 
 // Apply user's input to this entity.

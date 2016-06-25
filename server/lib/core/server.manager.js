@@ -11,10 +11,11 @@ ServerManager.prototype.joinGame = function(client) {
     
     if(this.gameServers.length == 0) {      
       var game = new GameServer();
+      game.startUpdateLoop();
       this.gameServers.push(game);
     }
 
-    this.gameServers[0].register(client);
+    this.gameServers[0].registerClient(client);
 }
 
 module.exports = ServerManager;

@@ -6,11 +6,11 @@
 
 	var ws = new WebSocket("ws://127.0.0.1:1234");
 	ws.onopen = function(evt) { setInterval(function() {sendClientUpdate()}, 1000); };   
-    
+
     function sendClientUpdate() {
     	var randomizedPayload = { 
     		move : true, 
-    		rotate: 2.2,
+    		angle: 2.2,
     		weapon: 13,
     		fire: false 
     	};
