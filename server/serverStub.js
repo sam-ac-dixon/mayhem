@@ -1,22 +1,27 @@
 var ws = require("nodejs-websocket");
 var Server = require("./server.js");
 
-var updateRateMS = 30;
+var updateRateMS = 200;
 
 var game_server = new Server();
 //game_server.startUpdateLoop();
 
 var data_payload = { 
-  id: "abc",
-  players: [{
-  	id: "abc",
+  player: {
+  	id: "mememe",
   	x: 0,
+  	y: 0,
+  	a: 0
+  },
+  otherplayers: [{
+  	id: "abc",
+  	x: -1,
   	y: 0,
   	a: 0
   },
   {
   	id: "def",
-  	x: 0,
+  	x: 1,
   	y: 0,
   	a: 0
   }],
@@ -38,8 +43,8 @@ var socket = ws.createServer(function(conn) {
 
     setInterval(function() {
     	console.log("Running thingy");
-    	data_payload["players"][0].x += 0.01;
-    	data_payload["players"][1].x += 0.01;
+    	data_payload["otherplayers"][0].x += 0.01;
+    	data_payload["otherplayers"][1].x += 0.01;
     	console.log(JSON.stringify(data_payload));
     	clientConnection.sendText(JSON.stringify(data_payload));
     }, updateRateMS);

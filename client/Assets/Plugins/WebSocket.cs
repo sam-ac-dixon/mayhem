@@ -105,6 +105,13 @@ public class WebSocket
 	bool m_IsConnected = false;
 	string m_Error = null;
 
+    public bool IsConnected
+    {
+        get {
+            return m_IsConnected;
+        }
+    }
+
 	public IEnumerator Connect()
 	{
 		m_Socket = new WebSocketSharp.WebSocket(mUrl.ToString());
