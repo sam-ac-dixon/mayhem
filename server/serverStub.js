@@ -1,7 +1,7 @@
 var ws = require("nodejs-websocket");
 var Server = require("./server.js");
 
-var updateRateMS = 200;
+var updateRateMS = 30;
 
 var game_server = new Server();
 //game_server.startUpdateLoop();

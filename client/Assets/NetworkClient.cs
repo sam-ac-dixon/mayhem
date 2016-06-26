@@ -26,6 +26,8 @@ namespace Mayhem
         {
             yield return StartCoroutine(m_Socket.Connect());
 
+            string[] commands;
+
             while (m_Socket.IsConnected)
             {
                 if (m_TimeUntilUpdate > 0)
@@ -38,19 +40,25 @@ namespace Mayhem
                     m_TimeUntilUpdate = UpdateRate;
                 }
 
-                string command = m_Socket.RecvString();
+                commands = m_Socket.Recv();
 
-                if (command != null)
+                if (commands != null)
                 {
-                    Commands.Base recievedCommand = JsonUtility.FromJson<Commands.Base>(command);
+                    foreach(string cmd in commands)
+                    {
+                        Application.ExternalCall("console.log", cmd);
+                        Commands.Base recievedCommand = JsonUtility.FromJson<Commands.Base>(cmd);
 
-                    m_UnprocessedCommands.Enqueue(recievedCommand);
+                        m_UnprocessedCommands.Enqueue(recievedCommand);
+                    }
                 }
+
                 if (m_Socket.error != null)
                 {
                     Debug.LogError("Error: " + m_Socket.error);
                     break;
                 }
+
                 yield return 0;
             }
 

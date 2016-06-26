@@ -66,7 +66,6 @@ namespace Mayhem
                     if(otherPlayerObj == null)
                     { 
                         Vector3 pos = new Vector3(command.x, command.y, command.a);
-                        // assign ID
                         otherPlayerObj = (GameObject)Instantiate(OtherPlayerPrefab, pos, Quaternion.identity);
                     }
              
