@@ -5,7 +5,7 @@ using UnityEngine;
 
 namespace Mayhem
 {
-    public class NetworkClient : MonoBehaviour
+    public class NetworkManager : MonoBehaviour
     {
         public string URL = "ws://192.168.1.61:8001";
 

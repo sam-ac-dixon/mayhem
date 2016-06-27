@@ -4,9 +4,9 @@ using System.Linq;
 using System.Text;
 using UnityEngine;
 
-namespace Mayhem
+namespace Mayhem.Entities.Players
 {
-    public class Player : Entity, IPlayerEntity
+    public class ConnectedPlayer : Base, IPlayerEntity
     {
         public void ServerUpdate(Commands.PlayerCommandData data)
         {

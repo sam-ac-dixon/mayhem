@@ -3,8 +3,8 @@ using System.Collections;
 using System;
 using System.Text;
 
-namespace Mayhem {
-    public class MainPlayer : Player
+namespace Mayhem.Entities.Players {
+    public class Player : ConnectedPlayer
     {
         private float m_MovementSpeed = 3f;
         private float m_RotateSpeed = 5f;

@@ -15,8 +15,8 @@ namespace Mayhem
 
         public GameObject OtherPlayerPrefab;
 
-        public NetworkClient m_NetworkClient;
-        private Player m_MainPlayer;
+        public NetworkManager m_NetworkClient;
+        private Entities.Players.Player m_MainPlayer;
 
         private int m_FrameRate;
 
@@ -36,8 +36,8 @@ namespace Mayhem
 
         public void Awake()
         {
-            m_NetworkClient = GameObject.Find("NetworkManager").GetComponent<NetworkClient>();
-            m_MainPlayer = GameObject.Find("MainPlayer").GetComponent<MainPlayer>();
+            m_NetworkClient = GameObject.Find("NetworkManager").GetComponent<NetworkManager>();
+            m_MainPlayer = GameObject.Find("MainPlayer").GetComponent<Entities.Players.Player>();
 
             FrameRate = 30;
         }
@@ -69,7 +69,7 @@ namespace Mayhem
                         otherPlayerObj = (GameObject)Instantiate(OtherPlayerPrefab, pos, Quaternion.identity);
                     }
              
-                    otherPlayerObj.GetComponent<Player>().ServerUpdate(command);
+                    otherPlayerObj.GetComponent<Entities.Players.ConnectedPlayer>().ServerUpdate(command);
                 }
             }
         }

@@ -4,9 +4,9 @@ using System.Linq;
 using System.Text;
 using UnityEngine;
 
-namespace Mayhem
+namespace Mayhem.Entities
 {
-    public class Entity  : MonoBehaviour
+    public class Base  : MonoBehaviour
     {
         protected string m_ID;
 

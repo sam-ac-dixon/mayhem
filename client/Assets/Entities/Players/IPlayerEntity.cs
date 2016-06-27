@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace Mayhem
+namespace Mayhem.Entities.Players
 {
     public interface IPlayerEntity
     {
