@@ -47,19 +47,18 @@ namespace Mayhem
         ///     The server is only going to send data which affects the client (Is near by it)
         ///     Investigate whether deleting entities which are within the client but not updated by the server is better than
         ///     disabling (not draw or update) if the server hasn't sent their data in a packet and deleting them after n packets/or time.
-        ///      
         /// </summary>
         public void Update()
         {
             int currentCommandCount = m_NetworkClient.GetCommandCount();
-
+            
             for(int i = 0; i < currentCommandCount; i++)
             {
-                Commands.Base currentCommand = m_NetworkClient.PopCommand();
+                Commands.FromServer.Payload currentCommand = m_NetworkClient.PopCommand();
 
                 m_MainPlayer.ServerUpdate(currentCommand.player);
 
-                foreach(Commands.PlayerCommandData command in currentCommand.otherplayers)
+                foreach(Commands.FromServer.PlayerCommandData command in currentCommand.otherplayers)
                 {
                     GameObject otherPlayerObj = GameObject.Find(command.id);
 
@@ -71,6 +70,14 @@ namespace Mayhem
              
                     otherPlayerObj.GetComponent<Entities.Players.ConnectedPlayer>().ServerUpdate(command);
                 }
+            }
+
+            if (m_MainPlayer.Actions.data.Count > 0)
+            {
+                string data = JsonUtility.ToJson(m_MainPlayer.Actions);
+                Debug.Log(data);
+                m_NetworkClient.SendData(data);
+                m_MainPlayer.Actions.data.Clear();
             }
         }
     }

@@ -8,7 +8,7 @@ namespace Mayhem.Entities.Players
 {
     public class ConnectedPlayer : Base, IPlayerEntity
     {
-        public void ServerUpdate(Commands.PlayerCommandData data)
+        public void ServerUpdate(Commands.FromServer.PlayerCommandData data)
         {
             if(String.IsNullOrEmpty(m_ID))
             {

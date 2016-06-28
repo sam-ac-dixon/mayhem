@@ -7,6 +7,6 @@ namespace Mayhem.Entities.Players
 {
     public interface IPlayerEntity
     {
-        void ServerUpdate(Commands.PlayerCommandData data);
+        void ServerUpdate(Commands.FromServer.PlayerCommandData data);
     }
 }

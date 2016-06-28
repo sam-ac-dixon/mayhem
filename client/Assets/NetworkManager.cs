@@ -9,7 +9,7 @@ namespace Mayhem
     {
         public string URL = "ws://192.168.1.61:8001";
 
-        private Queue<Commands.Base> m_UnprocessedCommands;
+        private Queue<Commands.FromServer.Payload> m_UnprocessedCommands;
         private WebSocket m_Socket;
         public float UpdateRate;
 
@@ -17,7 +17,7 @@ namespace Mayhem
 
         public void Awake()
         {
-            m_UnprocessedCommands = new Queue<Commands.Base>();
+            m_UnprocessedCommands = new Queue<Commands.FromServer.Payload>();
             m_Socket = new WebSocket(new Uri(URL));
             m_TimeUntilUpdate = 0;
         }
@@ -45,9 +45,8 @@ namespace Mayhem
                 if (commands != null)
                 {
                     foreach(string cmd in commands)
-                    {
-                        Application.ExternalCall("console.log", cmd);
-                        Commands.Base recievedCommand = JsonUtility.FromJson<Commands.Base>(cmd);
+                    {                       
+                        Commands.FromServer.Payload recievedCommand = JsonUtility.FromJson<Commands.FromServer.Payload>(cmd);
 
                         m_UnprocessedCommands.Enqueue(recievedCommand);
                     }
@@ -65,7 +64,12 @@ namespace Mayhem
             m_Socket.Close();
         }
 
-        public Commands.Base PopCommand()
+        public void SendData(string commands)
+        {
+            m_Socket.Send(commands);
+        }
+
+        public Commands.FromServer.Payload PopCommand()
         {
             return m_UnprocessedCommands.Dequeue();
         }
