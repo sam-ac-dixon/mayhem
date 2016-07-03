@@ -5,10 +5,11 @@ using System.Text;
 using System.Collections.Generic;
 
 namespace Mayhem.Entities.Players {
+   
     public class Player : ConnectedPlayer
     {
         private float m_MovementSpeed = 3f;
-        private float m_RotateSpeed = 5f;
+        private float m_RotateSpeed = 100f;
         private Commands.ToServer.Payload m_UnsentActions;
 
         public Commands.ToServer.Payload Actions
@@ -50,22 +51,12 @@ namespace Mayhem.Entities.Players {
 
         public override void Update()
         {
-            if (Input.GetKey(KeyCode.W))
-            {
-                transform.position += transform.right * m_MovementSpeed * Time.deltaTime;
-            }
+            // transform.Rotate(Vector3.forward * InputManager.GetAxis("Horizontal") * m_RotateSpeed * Time.deltaTime);
 
-            if (Input.GetKey(KeyCode.A))
-            {
-                transform.Rotate(Vector3.forward * m_RotateSpeed);
-            }
+            transform.Rotate(new Vector3(0, 0, -Input.InputManager.GetAxis("Horizontal") * m_RotateSpeed * Time.deltaTime));
+            transform.position += transform.right * Input.InputManager.GetAxis("Vertical") * m_MovementSpeed * Time.deltaTime;
 
-            if (Input.GetKey(KeyCode.D))
-            {
-                transform.Rotate(Vector3.forward * -m_RotateSpeed);
-            }
-
-            if (Input.GetKey(KeyCode.Space))
+            if (UnityEngine.Input.GetKey(KeyCode.Space))
             {
                 int weapon = 4;
 
