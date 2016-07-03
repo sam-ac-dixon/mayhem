@@ -8,22 +8,21 @@ namespace Mayhem.Input.Mobile
     {
         public enum AxisOption
         {
-            // Options for which axes to use
-            Both, // Use both
-            OnlyHorizontal, // Only horizontal
-            OnlyVertical // Only vertical
+            Both,
+            OnlyHorizontal, 
+            OnlyVertical 
         }
 
         public int MovementRange = 100;
-        public AxisOption axesToUse = AxisOption.Both; // The options for the axes that the still will use
-        public string horizontalAxisName = "Horizontal"; // The name given to the horizontal axis for the cross platform input
-        public string verticalAxisName = "Vertical"; // The name given to the vertical axis for the cross platform input
+        public AxisOption axesToUse = AxisOption.Both; 
+        public string horizontalAxisName = "Horizontal";
+        public string verticalAxisName = "Vertical";
 
-        Vector3 m_StartPos;
-        bool m_UseX; // Toggle for using the x axis
-        bool m_UseY; // Toggle for using the Y axis
-        InputManager.VirtualAxis m_HorizontalVirtualAxis; // Reference to the joystick in the cross platform input
-        InputManager.VirtualAxis m_VerticalVirtualAxis; // Reference to the joystick in the cross platform input
+        private Vector3 m_StartPos;
+        private bool m_UseX;
+        private bool m_UseY;
+        private VirtualAxis m_HorizontalVirtualAxis;
+        private VirtualAxis m_VerticalVirtualAxis;
 
         void OnEnable()
         {
@@ -40,6 +39,7 @@ namespace Mayhem.Input.Mobile
             var delta = m_StartPos - value;
             delta.y = -delta.y;
             delta /= MovementRange;
+
             if (m_UseX)
             {
                 m_HorizontalVirtualAxis.Update(-delta.x);
@@ -53,23 +53,20 @@ namespace Mayhem.Input.Mobile
 
         void CreateVirtualAxes()
         {
-            // set axes to use
             m_UseX = (axesToUse == AxisOption.Both || axesToUse == AxisOption.OnlyHorizontal);
             m_UseY = (axesToUse == AxisOption.Both || axesToUse == AxisOption.OnlyVertical);
 
-            // create new axes based on axes to use
             if (m_UseX)
             {
-                m_HorizontalVirtualAxis = new InputManager.VirtualAxis(horizontalAxisName);
+                m_HorizontalVirtualAxis = new VirtualAxis(horizontalAxisName);
                 InputManager.RegisterVirtualAxis(m_HorizontalVirtualAxis);
             }
             if (m_UseY)
             {
-                m_VerticalVirtualAxis = new InputManager.VirtualAxis(verticalAxisName);
+                m_VerticalVirtualAxis = new VirtualAxis(verticalAxisName);
                 InputManager.RegisterVirtualAxis(m_VerticalVirtualAxis);
             }
         }
-
 
         public void OnDrag(PointerEventData data)
         {
@@ -104,7 +101,6 @@ namespace Mayhem.Input.Mobile
 
         void OnDisable()
         {
-            // remove the joysticks from the cross platform input
             if (m_UseX)
             {
                 m_HorizontalVirtualAxis.Remove();

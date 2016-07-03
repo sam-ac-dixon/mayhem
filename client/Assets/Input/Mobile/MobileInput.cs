@@ -7,17 +7,14 @@ namespace Mayhem.Input.Mobile
     {
         private void AddButton(string name)
         {
-            // we have not registered this button yet so add it, happens in the constructor
-            InputManager.RegisterVirtualButton(new InputManager.VirtualButton(name));
+            InputManager.RegisterVirtualButton(new VirtualButton(name));
         }
 
 
         private void AddAxes(string name)
         {
-            // we have not registered this button yet so add it, happens in the constructor
-            InputManager.RegisterVirtualAxis(new InputManager.VirtualAxis(name));
+            InputManager.RegisterVirtualAxis(new VirtualAxis(name));
         }
-
 
         public override float GetAxis(string name, bool raw)
         {
@@ -28,7 +25,6 @@ namespace Mayhem.Input.Mobile
             return m_VirtualAxes[name].GetValue;
         }
 
-
         public override void SetButtonDown(string name)
         {
             if (!m_VirtualButtons.ContainsKey(name))
@@ -37,7 +33,6 @@ namespace Mayhem.Input.Mobile
             }
             m_VirtualButtons[name].Pressed();
         }
-
 
         public override void SetButtonUp(string name)
         {

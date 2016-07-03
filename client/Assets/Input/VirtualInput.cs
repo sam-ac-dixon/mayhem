@@ -10,11 +10,9 @@ namespace Mayhem.Input
         public Vector3 virtualMousePosition { get; private set; }
         
         
-        protected Dictionary<string, InputManager.VirtualAxis> m_VirtualAxes =
-            new Dictionary<string, InputManager.VirtualAxis>();
+        protected Dictionary<string, VirtualAxis> m_VirtualAxes = new Dictionary<string, VirtualAxis>();
             // Dictionary to store the name relating to the virtual axes
-        protected Dictionary<string, InputManager.VirtualButton> m_VirtualButtons =
-            new Dictionary<string, InputManager.VirtualButton>();
+        protected Dictionary<string, VirtualButton> m_VirtualButtons = new Dictionary<string, VirtualButton>();
         protected List<string> m_AlwaysUseVirtual = new List<string>();
             // list of the axis and button names that have been flagged to always use a virtual axis or button
         
@@ -30,7 +28,7 @@ namespace Mayhem.Input
         }
 
 
-        public void RegisterVirtualAxis(InputManager.VirtualAxis axis)
+        public void RegisterVirtualAxis(VirtualAxis axis)
         {
             // check if we already have an axis with that name and log and error if we do
             if (m_VirtualAxes.ContainsKey(axis.name))
@@ -51,7 +49,7 @@ namespace Mayhem.Input
         }
 
 
-        public void RegisterVirtualButton(InputManager.VirtualButton button)
+        public void RegisterVirtualButton(VirtualButton button)
         {
             // check if already have a buttin with that name and log an error if we do
             if (m_VirtualButtons.ContainsKey(button.name))
@@ -93,7 +91,7 @@ namespace Mayhem.Input
 
 
         // returns a reference to a named virtual axis if it exists otherwise null
-        public InputManager.VirtualAxis VirtualAxisReference(string name)
+        public VirtualAxis VirtualAxisReference(string name)
         {
             return m_VirtualAxes.ContainsKey(name) ? m_VirtualAxes[name] : null;
         }
