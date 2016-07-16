@@ -25,6 +25,7 @@ namespace Mayhem.Input
             activeInput = s_TouchInput;
 #else
 			activeInput = s_HardwareInput;
+            GameObject.Destroy(GameObject.Find("MobileContols"));
 #endif
 		}
 

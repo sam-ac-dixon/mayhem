@@ -49,11 +49,20 @@ namespace Mayhem.Entities.Players {
             m_UnsentActions = new Commands.ToServer.Payload();
         }
 
+        float quickAngle = 0f;
+        float quickAngleDelta = 15.0f;
+
         public override void Update()
         {
-            // transform.Rotate(Vector3.forward * InputManager.GetAxis("Horizontal") * m_RotateSpeed * Time.deltaTime);
-
             transform.Rotate(new Vector3(0, 0, -Input.InputManager.GetAxis("Horizontal") * m_RotateSpeed * Time.deltaTime));
+
+            if (Application.isMobilePlatform)
+            {
+                transform.Rotate(new Vector3(0, 0, -Input.InputManager.GetAxis("AngleQuickChange") * m_RotateSpeed * Time.deltaTime));
+            }
+
+            transform.Rotate(new Vector3(0, 0, 0 * m_RotateSpeed * Time.deltaTime));
+
             transform.position += transform.right * Input.InputManager.GetAxis("Vertical") * m_MovementSpeed * Time.deltaTime;
 
             if (UnityEngine.Input.GetKey(KeyCode.Space))
