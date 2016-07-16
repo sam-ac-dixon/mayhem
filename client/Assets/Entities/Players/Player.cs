@@ -4,8 +4,9 @@ using System;
 using System.Text;
 using System.Collections.Generic;
 
-namespace Mayhem.Entities.Players {
-   
+namespace Mayhem.Entities.Players
+{
+
     public class Player : ConnectedPlayer
     {
         private float m_MovementSpeed = 3f;
@@ -49,21 +50,31 @@ namespace Mayhem.Entities.Players {
             m_UnsentActions = new Commands.ToServer.Payload();
         }
 
-        float quickAngle = 0f;
-        float quickAngleDelta = 15.0f;
+        float currentAngle = 0f;
+        float previousAngle = 0f;
 
         public override void Update()
         {
-            transform.Rotate(new Vector3(0, 0, -Input.InputManager.GetAxis("Horizontal") * m_RotateSpeed * Time.deltaTime));
+#if MOBILE_INPUT
+            currentAngle = Mathf.Atan2(Input.InputManager.GetAxis("Vertical"), Input.InputManager.GetAxis("Horizontal"));
+            currentAngle = currentAngle * Mathf.Rad2Deg;
 
-            if (Application.isMobilePlatform)
+            if (Input.InputManager.GetAxis("AngleQuickChange") != 0)
             {
-                transform.Rotate(new Vector3(0, 0, -Input.InputManager.GetAxis("AngleQuickChange") * m_RotateSpeed * Time.deltaTime));
+                transform.Rotate(new Vector3(0, 0, Input.InputManager.GetAxis("AngleQuickChange") * m_RotateSpeed * Time.deltaTime));
             }
 
-            transform.Rotate(new Vector3(0, 0, 0 * m_RotateSpeed * Time.deltaTime));
+            if (Input.InputManager.GetAxis("Horizontal") != 0 || Input.InputManager.GetAxis("Vertical") != 0)
+            {
+                transform.position += transform.right * Time.deltaTime * m_MovementSpeed;
+                transform.eulerAngles = new Vector3(0, 0, currentAngle);
+            }
 
+#endif
+#if !MOBILE_INPUT
+            transform.Rotate(new Vector3(0, 0, -Input.InputManager.GetAxis("Horizontal") * m_RotateSpeed * Time.deltaTime));
             transform.position += transform.right * Input.InputManager.GetAxis("Vertical") * m_MovementSpeed * Time.deltaTime;
+#endif
 
             if (UnityEngine.Input.GetKey(KeyCode.Space))
             {
