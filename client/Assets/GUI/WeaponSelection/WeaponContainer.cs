@@ -48,57 +48,41 @@ namespace Mayhem.GUI.WeaponSelection
             selectWeapon(((m_WeaponCount - 1) / 2));
         }
 
-        float startTime;
         Vector2 startPos;
         float minSwipeDist = 10f;
         bool isSwiping = false;
 
         void handleMobileTouches()
         {
-            if (UnityEngine.Input.touchCount > 0)
+            foreach (var touch in UnityEngine.Input.touches)
             {
-                var touch = UnityEngine.Input.touches[0];
+
+                if(RectTransformUtility.RectangleContainsScreenPoint(m_SwipeZone, touch.position) == false)
+                {
+                    continue;
+                }
 
                 if (touch.phase == TouchPhase.Began)
                 {
-                    if (RectTransformUtility.RectangleContainsScreenPoint(m_SwipeZone, touch.position))
-                    {
-                        startPos = touch.position;
-                        startTime = Time.time;
-                        isSwiping = true;
-                    }
-                    else
-                    {
-                        isSwiping = false;
-                    }
+                    startPos = touch.position;
+                    isSwiping = true;  
                 }
-                else if (touch.phase == TouchPhase.Ended && isSwiping) 
+                else if (touch.phase == TouchPhase.Ended && isSwiping && Mathf.Abs(touch.position.y - startPos.y) > 30) 
                 {
-                    var swipeTime = Time.time - startTime;
-                    var swipeDist = (touch.position - startPos).magnitude;
+                    var swipeDirection = Mathf.Sign(touch.position.y - startPos.y);
 
-                    if (Mathf.Abs(touch.position.y - startPos.y) > 30)
+                    GetComponent<Text>().text = swipeDirection.ToString();
+
+                    if (swipeDirection > 0)
                     {
-                        if (swipeDist > minSwipeDist)
-                        {
-                            var swipeDirection = Mathf.Sign(touch.position.y - startPos.y);
-
-                            Debug.Log(swipeDirection);
-                            GetComponent<Text>().text = swipeDirection.ToString();
-
-                            if (swipeDirection > 0)
-                            {
-                                getNextWeapon();
-                            }
-                            else
-                            {
-                                getPreviousWeapon();
-                            }
-                        }
+                        getNextWeapon();
+                    }
+                    else if (swipeDirection < 0)
+                    {
+                        getPreviousWeapon();
                     }
 
                     isSwiping = false;
-
 
                 }
             }
