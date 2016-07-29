@@ -7,32 +7,21 @@ namespace Mayhem.GUI.WeaponSelection
 {
     public class WeaponContainer : MonoBehaviour
     {
-        public GameObject WeaponIconPrefab;
-        public int WeaponCount = 5;
-        private GameObject[] weapons;
-        private int m_SelectedWeaponIndex;
+        private int m_WeaponCount = 5;
+        private int m_SelectedWeaponIndex = 1;
         // public float MinimumTransparency = 0.4f;
         // public float MaximumTransparency = 1f;
 
+        private float m_SwipeZoneStartY = Screen.height / 5;
+        private float m_SwipeZoneStartX = Screen.width / 2;
+        private RectTransform m_SwipeZone;
+        public string WeaponChildName = "WeaponIcon";
+
         void Start()
         {
-            weapons = new GameObject[WeaponCount];
+            m_WeaponCount = transform.childCount - 1; // -1 accounts for the swipe zone;
 
-            Vector3 pos = new Vector3(
-                transform.position.x - (WeaponIconPrefab.GetComponent<RectTransform>().rect.width / 2),  // Offset so that the entire icon's width is on screen. This is used as the origin is the center of the texture
-                transform.position.y - (WeaponIconPrefab.GetComponent<RectTransform>().rect.height * ((WeaponCount - 1) / 2)), // Find the top most y coordinate which fits all icons on the screen
-                transform.position.z);
-            // float alpha = 1f;
-            float middleIndex = (float)Math.Round((float)WeaponCount / 2f, MidpointRounding.AwayFromZero);
-
-            for (int i = 0; i < WeaponCount; i++)
-            {
-                weapons[i] = (GameObject)Instantiate(WeaponIconPrefab, pos, Quaternion.identity);
-                weapons[i].transform.SetParent(transform);
-                weapons[i].transform.localPosition = pos;
-
-                pos.y -= WeaponIconPrefab.GetComponent<RectTransform>().rect.height;
-            }
+            m_SwipeZone = transform.FindChild("SwipeZone").GetComponent<RectTransform>();
 
             //// MaximumTransparency = MinimumTransparency provides the amount of transparency we have to play with
             //// ((WeaponCount - 1) / 2) returns the amount of icons either side of the middle icon.
@@ -56,12 +45,13 @@ namespace Mayhem.GUI.WeaponSelection
             //    weapons[i].GetComponent<Image>().color = new Color(1, 1, 1, currentAlpha);
             //}
 
-            selectWeapon(((WeaponCount - 1) / 2));
+            selectWeapon(((m_WeaponCount - 1) / 2));
         }
 
         float startTime;
         Vector2 startPos;
         float minSwipeDist = 10f;
+        bool isSwiping = false;
 
         void handleMobileTouches()
         {
@@ -69,25 +59,33 @@ namespace Mayhem.GUI.WeaponSelection
             {
                 var touch = UnityEngine.Input.touches[0];
 
-                switch (touch.phase)
+                if (touch.phase == TouchPhase.Began)
                 {
-                    case TouchPhase.Began:
-                        // Only begin if its within the weapon container area
+                    if (RectTransformUtility.RectangleContainsScreenPoint(m_SwipeZone, touch.position))
+                    {
                         startPos = touch.position;
                         startTime = Time.time;
-                        break;
+                        isSwiping = true;
+                    }
+                    else
+                    {
+                        isSwiping = false;
+                    }
+                }
+                else if (touch.phase == TouchPhase.Ended && isSwiping) 
+                {
+                    var swipeTime = Time.time - startTime;
+                    var swipeDist = (touch.position - startPos).magnitude;
 
-                    case TouchPhase.Ended:
-
-                        var swipeTime = Time.time - startTime;
-                        // ensure only veritcle swipes affect it
-                        var swipeDist = (touch.position - startPos).magnitude;
-
+                    if (Mathf.Abs(touch.position.y - startPos.y) > 30)
+                    {
                         if (swipeDist > minSwipeDist)
                         {
                             var swipeDirection = Mathf.Sign(touch.position.y - startPos.y);
 
                             Debug.Log(swipeDirection);
+                            GetComponent<Text>().text = swipeDirection.ToString();
+
                             if (swipeDirection > 0)
                             {
                                 getNextWeapon();
@@ -97,8 +95,11 @@ namespace Mayhem.GUI.WeaponSelection
                                 getPreviousWeapon();
                             }
                         }
+                    }
 
-                        break;
+                    isSwiping = false;
+
+
                 }
             }
         }
@@ -110,11 +111,11 @@ namespace Mayhem.GUI.WeaponSelection
 #endif
 
 #if !MOBILE_INPUT
-            for(int i = (int)KeyCode.Alpha1; i < (int)KeyCode.Alpha1 + WeaponCount; i++)
+            for (int i = (int)KeyCode.Alpha1; i < (int)KeyCode.Alpha1 + m_WeaponCount; i++)
             {
                 if (UnityEngine.Input.GetKeyDown((KeyCode)i))
                 {
-                    selectWeapon(i - (int)KeyCode.Alpha1);
+                    selectWeapon(i - (int)KeyCode.Alpha1 + 1); // + 1 Accounts for indexs starting at index of 1
                 }
             }
 #endif
@@ -123,13 +124,14 @@ namespace Mayhem.GUI.WeaponSelection
 
         private void selectWeapon(int newlySelectedWeapon)
         {
-            if(newlySelectedWeapon < WeaponCount && newlySelectedWeapon >= 0)
+            if (newlySelectedWeapon <= m_WeaponCount && newlySelectedWeapon > 0)
             {
-                weapons[m_SelectedWeaponIndex].GetComponent<Image>().color = Color.white;
+
+                transform.FindChild(WeaponChildName + m_SelectedWeaponIndex).GetComponent<Image>().color = Color.white;
                 m_SelectedWeaponIndex = newlySelectedWeapon;
 
-                weapons[m_SelectedWeaponIndex].GetComponent<Image>().color = Color.red;
-            }  
+                transform.FindChild(WeaponChildName + newlySelectedWeapon).GetComponent<Image>().color = Color.red;
+            }
         }
 
         private void getNextWeapon()
