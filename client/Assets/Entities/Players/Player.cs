@@ -13,6 +13,17 @@ namespace Mayhem.Entities.Players
         private float m_RotateSpeed = 100f;
         private Commands.ToServer.Payload m_UnsentActions;
 
+#if MOBILE_INPUT
+        private float m_PreviousQuickChangeAngle = 0f;
+
+        /// <summary>
+        /// Required so that it doesn't gitter due to the slight changes in delta time
+        /// </summary>
+        private float m_QuickChangeAngle = 0f;
+
+        private float m_QuickChangeRotateSpeedMultiplyer = 5;
+#endif
+
         public Commands.ToServer.Payload Actions
         {
             get
@@ -50,39 +61,14 @@ namespace Mayhem.Entities.Players
             m_UnsentActions = new Commands.ToServer.Payload();
         }
 
-        float currentAngle = 0f;
-        float quickChangeAngle = 0f;
-
-        float previousQuickChangeAngle = 0f;
-
         public override void Update()
         {
 #if MOBILE_INPUT
-            currentAngle = Mathf.Atan2(Input.InputManager.GetAxis("Vertical"), Input.InputManager.GetAxis("Horizontal"));
-            currentAngle = currentAngle * Mathf.Rad2Deg;
 
-            previousQuickChangeAngle = quickChangeAngle;
-            quickChangeAngle = Input.InputManager.GetAxis("AngleQuickChange");
-
-            if (quickChangeAngle != 0 && previousQuickChangeAngle != quickChangeAngle)
-            {
-                float newAngle = quickChangeAngle + currentAngle;
-
-                newAngle = newAngle * (m_RotateSpeed * 5) * Time.deltaTime;
-
-                transform.rotation = Quaternion.Euler(new Vector3(0, 0, newAngle));
-            }
-
-            if (Input.InputManager.GetAxis("Horizontal") != 0 || Input.InputManager.GetAxis("Vertical") != 0)
-            {
-                transform.position += transform.right * Time.deltaTime * m_MovementSpeed;
-                transform.eulerAngles = new Vector3(0, 0, currentAngle + quickChangeAngle);
-            }
-
+            handle_mobileMovement();
 #endif
 #if !MOBILE_INPUT
-            transform.Rotate(new Vector3(0, 0, -Input.InputManager.GetAxis("Horizontal") * m_RotateSpeed * Time.deltaTime));
-            transform.position += transform.right * Input.InputManager.GetAxis("Vertical") * m_MovementSpeed * Time.deltaTime;
+            handle_pcMovement();
 #endif
 
             if (UnityEngine.Input.GetKey(KeyCode.Space))
@@ -94,6 +80,36 @@ namespace Mayhem.Entities.Players
                 m_UnsentActions.data.Add(cmd);
 
                 Debug.Log("Shoot");
+            }
+        }
+
+        private void handle_pcMovement()
+        {
+            transform.Rotate(new Vector3(0, 0, -Input.InputManager.GetAxis("Horizontal") * m_RotateSpeed * Time.deltaTime));
+            transform.position += transform.right * Input.InputManager.GetAxis("Vertical") * m_MovementSpeed * Time.deltaTime;
+        }
+
+        private void handle_mobileMovement()
+        {
+            float currentAngle = 0f;
+
+            currentAngle = Mathf.Atan2(Input.InputManager.GetAxis("Vertical"), Input.InputManager.GetAxis("Horizontal"));
+            currentAngle = currentAngle * Mathf.Rad2Deg;
+
+            m_PreviousQuickChangeAngle = m_QuickChangeAngle;
+            m_QuickChangeAngle = Input.InputManager.GetAxis("AngleQuickChange");
+
+            if (m_QuickChangeAngle != 0 && m_PreviousQuickChangeAngle != m_QuickChangeAngle)
+            {
+                float newAngle = (m_QuickChangeAngle + currentAngle) * (m_RotateSpeed * m_QuickChangeRotateSpeedMultiplyer) * Time.deltaTime;
+
+                transform.rotation = Quaternion.Euler(new Vector3(0, 0, newAngle));
+            }
+
+            if (Input.InputManager.GetAxis("Horizontal") != 0 || Input.InputManager.GetAxis("Vertical") != 0)
+            {
+                transform.position += transform.right * Time.deltaTime * m_MovementSpeed;
+                transform.eulerAngles = new Vector3(0, 0, currentAngle + m_QuickChangeAngle);
             }
         }
     }
