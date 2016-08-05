@@ -51,7 +51,9 @@ namespace Mayhem.Entities.Players
         }
 
         float currentAngle = 0f;
-        float previousAngle = 0f;
+        float quickChangeAngle = 0f;
+
+        float previousQuickChangeAngle = 0f;
 
         public override void Update()
         {
@@ -59,15 +61,22 @@ namespace Mayhem.Entities.Players
             currentAngle = Mathf.Atan2(Input.InputManager.GetAxis("Vertical"), Input.InputManager.GetAxis("Horizontal"));
             currentAngle = currentAngle * Mathf.Rad2Deg;
 
-            if (Input.InputManager.GetAxis("AngleQuickChange") != 0)
+            previousQuickChangeAngle = quickChangeAngle;
+            quickChangeAngle = Input.InputManager.GetAxis("AngleQuickChange");
+
+            if (quickChangeAngle != 0 && previousQuickChangeAngle != quickChangeAngle)
             {
-                transform.Rotate(new Vector3(0, 0, Input.InputManager.GetAxis("AngleQuickChange") * m_RotateSpeed * Time.deltaTime));
+                float newAngle = quickChangeAngle + currentAngle;
+
+                newAngle = newAngle * (m_RotateSpeed * 5) * Time.deltaTime;
+
+                transform.rotation = Quaternion.Euler(new Vector3(0, 0, newAngle));
             }
 
             if (Input.InputManager.GetAxis("Horizontal") != 0 || Input.InputManager.GetAxis("Vertical") != 0)
             {
                 transform.position += transform.right * Time.deltaTime * m_MovementSpeed;
-                transform.eulerAngles = new Vector3(0, 0, currentAngle);
+                transform.eulerAngles = new Vector3(0, 0, currentAngle + quickChangeAngle);
             }
 
 #endif
