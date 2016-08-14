@@ -33,7 +33,6 @@ namespace Mayhem.Input.Mobile
             m_Slider.value = 0;
 
             m_AngleQuickChange.Update(0);
-
         }
 
         public void ValueChangeCheck()

@@ -89,27 +89,37 @@ namespace Mayhem.Entities.Players
             transform.position += transform.right * Input.InputManager.GetAxis("Vertical") * m_MovementSpeed * Time.deltaTime;
         }
 
+        float currentAngle = 0f;
+
         private void handle_mobileMovement()
         {
-            float currentAngle = 0f;
 
-            currentAngle = Mathf.Atan2(Input.InputManager.GetAxis("Vertical"), Input.InputManager.GetAxis("Horizontal"));
-            currentAngle = currentAngle * Mathf.Rad2Deg;
+            if (Input.InputManager.GetAxis("Horizontal") != 0 || Input.InputManager.GetAxis("Vertical") != 0)
+            {
+                currentAngle = Mathf.Atan2(Input.InputManager.GetAxis("Vertical"), Input.InputManager.GetAxis("Horizontal"));
+                currentAngle = currentAngle * Mathf.Rad2Deg;
+            }
 
             m_PreviousQuickChangeAngle = m_QuickChangeAngle;
-            m_QuickChangeAngle = Input.InputManager.GetAxis("AngleQuickChange");
+            float unverifiedQuickChangeAngle = Input.InputManager.GetAxis("AngleQuickChange");
 
-            if (m_QuickChangeAngle != 0 && m_PreviousQuickChangeAngle != m_QuickChangeAngle)
+            if (unverifiedQuickChangeAngle != 0 && m_PreviousQuickChangeAngle != unverifiedQuickChangeAngle)
             {
-                float newAngle = (m_QuickChangeAngle + currentAngle) * (m_RotateSpeed * m_QuickChangeRotateSpeedMultiplyer) * Time.deltaTime;
-
-                transform.rotation = Quaternion.Euler(new Vector3(0, 0, newAngle));
+                m_QuickChangeAngle = (unverifiedQuickChangeAngle * (m_RotateSpeed));
+            }
+            else
+            {
+                m_QuickChangeAngle = 0;
             }
 
             if (Input.InputManager.GetAxis("Horizontal") != 0 || Input.InputManager.GetAxis("Vertical") != 0)
             {
                 transform.position += transform.right * Time.deltaTime * m_MovementSpeed;
-                transform.eulerAngles = new Vector3(0, 0, currentAngle + m_QuickChangeAngle);
+            }
+
+            if (Input.InputManager.GetAxis("Horizontal") != 0 || Input.InputManager.GetAxis("Vertical") != 0 || m_QuickChangeAngle != 0)
+            {
+                transform.rotation = Quaternion.Euler(new Vector3(0, 0, currentAngle + m_QuickChangeAngle));
             }
         }
     }
